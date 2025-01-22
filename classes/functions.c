@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "functions.h"
+#include "../headers/functions.h"
 
 bool changeDirectory (char* directory, int length)
 {
