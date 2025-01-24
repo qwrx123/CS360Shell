@@ -9,21 +9,9 @@ int main(int argc, char** argv)
 {
 	int pid;
 
-	pid = fork();
-
-	if (pid == -1)
+	while(true)
 	{
-		perror("Failed to create processes");
-	}
-
-	if (pid == 0)
-	{
-		printf("From child\n");
-	}
-	else if (pid != 0)
-	{
-		waitpid(pid, NULL, 0);
-		printf("From parent\n");
+		runCommand("", 0);
 	}
 	exit(EXIT_SUCCESS);
 }
