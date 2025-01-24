@@ -7,11 +7,15 @@
 
 int main(int argc, char** argv)
 {
+
 	int pid;
+
+	char buffer[100];
 
 	while(true)
 	{
-		runCommand("", 0);
+		getUserCommand(buffer, 100);
+		runCommand(buffer, 100);
 	}
 	exit(EXIT_SUCCESS);
 }

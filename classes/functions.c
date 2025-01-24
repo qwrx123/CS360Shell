@@ -20,7 +20,7 @@ bool runCommand(char* command, int length)
 {
     char* argv[3];
     argv[0] = "echo";
-    argv[1] = "hello";
+    argv[1] = command;
     argv[2] = NULL;
 	
     int status;
@@ -33,7 +33,6 @@ bool runCommand(char* command, int length)
 
 	if (pid == 0)
 	{
-        sleep(1);
 		execvp("echo", argv);
 	}
 	else
@@ -47,7 +46,12 @@ bool runCommand(char* command, int length)
     return false;
 }
 
-bool getUserInput(char* commandBuffer, int bufferLength)
+bool getUserCommand(char* buffer, int bufferSize)
 {
-    
+    if (fgets(buffer, bufferSize, stdin) == 0)
+    {
+        return false;
+    }
+
+    return true;
 }
