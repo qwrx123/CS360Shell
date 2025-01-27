@@ -1,5 +1,9 @@
 #include <stdbool.h>
 
+bool initializeSignalHandler();
+
+void signalHandler(int signal);
+
 bool changeDirectory(char* directory, int length);
 
 bool printDirectory();

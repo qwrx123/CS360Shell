@@ -6,8 +6,12 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
+#include <stdio.h>
 
 #include "../headers/functions.h"
+
+
 
 bool changeDirectory (char* directory, int length)
 {
@@ -36,7 +40,8 @@ bool printDirectory()
 {
     char cwd[1024];
 
-    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+    {
         perror("pwd");
         return false;   
     }
@@ -138,8 +143,22 @@ bool commandChoser(char** buffer, int numTokens)
     return true;
 }
 
+void signalHandler(int signal)
+{
+    return;
+}
+
+bool initializeSignalHandler()
+{
+	//catch signals so parent shell doesnt exit while child processes do
+    signal(SIGINT, signalHandler);
+    return true;
+}
+
 bool runCommand(char** command, int length)
 {
+
+
     int status;
 	int pid = fork();
 
