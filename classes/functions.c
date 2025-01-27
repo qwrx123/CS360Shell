@@ -18,11 +18,43 @@ bool printDirectory()
 
 bool runCommand(char* command, int length)
 {
-    char* argv[3];
-    argv[0] = "echo";
-    argv[1] = command;
-    argv[2] = NULL;
-	
+    if (length == 0 || command[0] == '\n')
+    {
+        return false;
+    }
+
+    char* argv[10] = {0};
+    
+    int currentArg = 0;
+
+    if (command[0] != ' ')
+    {
+        argv[currentArg] = &command[0];
+        currentArg++;
+    }
+
+    int i = 0;
+    for (; i < length && command[i] != '\0'; i++)
+    {
+        if (command[i] == ' ' && i < length - 1 && command[i+1] != ' ')
+        {
+            if (currentArg >= 10)
+            {
+                return false;
+            }
+
+            argv[currentArg] = &command[i + 1];
+            command[i] = '\0';
+            currentArg++;
+        }
+    }
+
+	if (command[i-1] == '\n')
+    {
+        command[i-1] = '\0';
+    }
+    
+
     int status;
 	int pid = fork();
 
@@ -33,7 +65,8 @@ bool runCommand(char* command, int length)
 
 	if (pid == 0)
 	{
-		execvp("echo", argv);
+		execvp(argv[0], argv);
+        perror("what");
 	}
 	else
 	{
