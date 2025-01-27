@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <errno.h>
 
 #include "../headers/functions.h"
 
@@ -15,7 +16,20 @@ bool changeDirectory (char* directory, int length)
         return chdir(getenv("HOME")) == 0;
     }
 
-    return chdir(directory);
+    if (chdir(directory) == -1)
+    {
+        if (errno == ENOENT)
+        {
+            fprintf(stderr, "No such directory\n");
+        }
+        else
+        {
+            fprintf(stderr, "Change directory failed\n");
+        }
+        return false;
+    }
+
+    return true;
 }
 
 bool printDirectory()
@@ -71,6 +85,10 @@ bool parseCommand(char* command, int lengthCommand, char** tokenized, int length
             tokenized[currentArg] = &command[i + 1];
             command[i] = '\0';
             currentArg++;
+        }
+        else if (i > 0 && command[i] == ' ' && command[i - 1] != ' ')
+        {
+            command[i] = '\0';
         }
     }
 
@@ -133,7 +151,11 @@ bool runCommand(char** command, int length)
 
 	if (pid == 0)
 	{
-		execvp(command[0], command);
+		if (execvp(command[0], command) == -1)
+        {
+            fprintf(stderr, "Failed to execute command\n");
+            exit(EXIT_FAILURE);
+        }
 	}
 	else
 	{
