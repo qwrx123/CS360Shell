@@ -7,19 +7,19 @@
 
 #define commandSize 100
 #define numTokens 10
+
 int main(int argc, char** argv)
 {
-
-	int pid;
-
 	char buffer[commandSize];
 	char* tokens[numTokens];
+
 	while(true)
 	{
 		formatShellString();
 		getUserCommand(buffer, 100);
 		parseCommand(buffer, 100, tokens, 10);
-		runCommand(tokens, 10);
+		commandChoser(tokens, 10);
 	}
+
 	exit(EXIT_SUCCESS);
 }

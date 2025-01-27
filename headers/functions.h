@@ -6,6 +6,8 @@ bool printDirectory();
 
 bool formatShellString();
 
+bool commandChoser(char** buffer, int bufferSize);
+
 bool runCommand(char** buffer, int bufferSize);
 
 bool parseCommand(char* command, int lengthCommand, char** tokanized, int lengthTokanized);

@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
+
 #include "../headers/functions.h"
 
 bool changeDirectory (char* directory, int length)
@@ -72,6 +74,31 @@ bool parseCommand(char* command, int lengthCommand, char** tokenized, int length
         command[i-1] = '\0';
     }
     
+    return true;
+}
+
+bool commandChoser(char** buffer, int numTokens)
+{
+    if (buffer[0] == NULL)
+    {
+        return false;
+    }
+
+    if (strcmp(buffer[0],"pwd") == 0)
+    {
+        printDirectory();
+        printf("\n");
+        fflush(stdout);
+        return true;
+    }
+
+    if (strcmp(buffer[0], "exit") == 0)
+    {
+        exit(EXIT_SUCCESS);
+    }
+
+    runCommand(buffer, numTokens);
+
     return true;
 }
 
