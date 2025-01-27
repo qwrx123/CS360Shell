@@ -13,37 +13,55 @@ bool changeDirectory (char* directory, int length)
 
 bool printDirectory()
 {
-    return false;
+    char cwd[1024]; // Buffer to store the current working directory
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("pwd");
+        return false;   
+    }
+
+    printf(cwd);
+
+    return true;
 }
 
-bool runCommand(char* command, int length)
+bool formatShellString()
 {
-    if (length == 0 || command[0] == '\n')
+    if (!printDirectory())
     {
         return false;
     }
 
-    char* argv[10] = {0};
+    printf("$myshell > ");
+    fflush(stdout);
+}
+
+bool parseCommand(char* command, int lengthCommand, char** tokenized, int lengthTokanized)
+{
+    if (lengthCommand == 0 || command[0] == '\n')
+    {
+        return false;
+    }
     
     int currentArg = 0;
 
     if (command[0] != ' ')
     {
-        argv[currentArg] = &command[0];
+        tokenized[currentArg] = &command[0];
         currentArg++;
     }
 
     int i = 0;
-    for (; i < length && command[i] != '\0'; i++)
+    for (; i < lengthCommand && command[i] != '\0'; i++)
     {
-        if (command[i] == ' ' && i < length - 1 && command[i+1] != ' ')
+        if (command[i] == ' ' && i < lengthCommand - 1 && command[i+1] != ' ')
         {
-            if (currentArg >= 10)
+            if (currentArg >= lengthTokanized)
             {
                 return false;
             }
 
-            argv[currentArg] = &command[i + 1];
+            tokenized[currentArg] = &command[i + 1];
             command[i] = '\0';
             currentArg++;
         }
@@ -54,29 +72,29 @@ bool runCommand(char* command, int length)
         command[i-1] = '\0';
     }
     
+    return true;
+}
 
+bool runCommand(char** command, int length)
+{
     int status;
 	int pid = fork();
 
 	if (pid == -1)
 	{
 		perror("Failed to create processes");
+        return false;
 	}
 
 	if (pid == 0)
 	{
-		execvp(argv[0], argv);
-        perror("what");
+		execvp(command[0], command);
 	}
 	else
 	{
 		wait(0);
-		printf("myshell$ ");
-        fflush(stdout);
-		//sleep(1);
-		
     }
-    return false;
+    return true;
 }
 
 bool getUserCommand(char* buffer, int bufferSize)
