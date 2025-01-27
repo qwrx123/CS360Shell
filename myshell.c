@@ -5,17 +5,21 @@
 #include <sys/wait.h>
 #include "headers/functions.h"
 
+#define commandSize 100
+#define numTokens 10
+
 int main(int argc, char** argv)
 {
-
-	int pid;
-
-	char buffer[100];
+	char buffer[commandSize];
 
 	while(true)
 	{
+		formatShellString();
 		getUserCommand(buffer, 100);
-		runCommand(buffer, 100);
+		char* tokens[numTokens] = {};
+		parseCommand(buffer, 100, tokens, 10);
+		commandChoser(tokens, 10);
 	}
+
 	exit(EXIT_SUCCESS);
 }

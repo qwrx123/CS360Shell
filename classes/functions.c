@@ -4,46 +4,142 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
+
 #include "../headers/functions.h"
 
 bool changeDirectory (char* directory, int length)
 {
-    return false;
+    if (length == 0)
+    {
+        return chdir(getenv("HOME")) == 0;
+    }
+
+    return chdir(directory);
 }
 
 bool printDirectory()
 {
-    return false;
+    char cwd[1024];
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("pwd");
+        return false;   
+    }
+
+    printf(cwd);
+
+    return true;
 }
 
-bool runCommand(char* command, int length)
+bool formatShellString()
 {
-    char* argv[3];
-    argv[0] = "echo";
-    argv[1] = command;
-    argv[2] = NULL;
-	
+    if (!printDirectory())
+    {
+        return false;
+    }
+
+    printf("$myshell > ");
+    fflush(stdout);
+}
+
+bool parseCommand(char* command, int lengthCommand, char** tokenized, int lengthTokanized)
+{
+    if (lengthCommand == 0 || command[0] == '\n')
+    {
+        return false;
+    }
+    
+    int currentArg = 0;
+
+    if (command[0] != ' ')
+    {
+        tokenized[currentArg] = &command[0];
+        currentArg++;
+    }
+
+    int i = 0;
+    for (; i < lengthCommand && command[i] != '\0'; i++)
+    {
+        if (command[i] == ' ' && i < lengthCommand - 1 && command[i+1] != ' ')
+        {
+            if (currentArg >= lengthTokanized)
+            {
+                return false;
+            }
+
+            tokenized[currentArg] = &command[i + 1];
+            command[i] = '\0';
+            currentArg++;
+        }
+    }
+
+	if (command[i-1] == '\n')
+    {
+        command[i-1] = '\0';
+    }
+    
+    return true;
+}
+
+bool commandChoser(char** buffer, int numTokens)
+{
+    if (buffer[0] == NULL)
+    {
+        return false;
+    }
+
+    if (strcmp(buffer[0], "cd") == 0)
+    {
+        if (buffer[1] == NULL)
+        {
+            return changeDirectory("", 0);
+        }
+        else
+        {
+            return changeDirectory(buffer[1], strlen(buffer[1]));
+        }
+        return true;
+    }
+
+    if (strcmp(buffer[0],"pwd") == 0)
+    {
+        printDirectory();
+        printf("\n");
+        fflush(stdout);
+        return true;
+    }
+
+    if (strcmp(buffer[0], "exit") == 0)
+    {
+        exit(EXIT_SUCCESS);
+    }
+
+    runCommand(buffer, numTokens);
+
+    return true;
+}
+
+bool runCommand(char** command, int length)
+{
     int status;
 	int pid = fork();
 
 	if (pid == -1)
 	{
 		perror("Failed to create processes");
+        return false;
 	}
 
 	if (pid == 0)
 	{
-		execvp("echo", argv);
+		execvp(command[0], command);
 	}
 	else
 	{
 		wait(0);
-		printf("myshell$ ");
-        fflush(stdout);
-		//sleep(1);
-		
     }
-    return false;
+    return true;
 }
 
 bool getUserCommand(char* buffer, int bufferSize)
