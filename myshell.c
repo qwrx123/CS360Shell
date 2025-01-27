@@ -11,12 +11,12 @@
 int main(int argc, char** argv)
 {
 	char buffer[commandSize];
-	char* tokens[numTokens];
 
 	while(true)
 	{
 		formatShellString();
 		getUserCommand(buffer, 100);
+		char* tokens[numTokens] = {};
 		parseCommand(buffer, 100, tokens, 10);
 		commandChoser(tokens, 10);
 	}

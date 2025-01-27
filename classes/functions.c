@@ -10,12 +10,17 @@
 
 bool changeDirectory (char* directory, int length)
 {
-    return false;
+    if (length == 0)
+    {
+        return chdir(getenv("HOME")) == 0;
+    }
+
+    return chdir(directory);
 }
 
 bool printDirectory()
 {
-    char cwd[1024]; // Buffer to store the current working directory
+    char cwd[1024];
 
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         perror("pwd");
@@ -82,6 +87,19 @@ bool commandChoser(char** buffer, int numTokens)
     if (buffer[0] == NULL)
     {
         return false;
+    }
+
+    if (strcmp(buffer[0], "cd") == 0)
+    {
+        if (buffer[1] == NULL)
+        {
+            return changeDirectory("", 0);
+        }
+        else
+        {
+            return changeDirectory(buffer[1], strlen(buffer[1]));
+        }
+        return true;
     }
 
     if (strcmp(buffer[0],"pwd") == 0)
