@@ -58,7 +58,7 @@ bool formatShellString()
         return false;
     }
 
-    printf("$myshell > ");
+    printf("$mysh > ");
     fflush(stdout);
 }
 
