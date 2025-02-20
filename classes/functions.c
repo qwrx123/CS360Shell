@@ -15,180 +15,180 @@
 
 bool changeDirectory (char* directory, int length)
 {
-    if (length == 0)
-    {
-        return chdir(getenv("HOME")) == 0;
-    }
+	if (length == 0)
+	{
+		return chdir(getenv("HOME")) == 0;
+	}
 
-    if (chdir(directory) == -1)
-    {
-        if (errno == ENOENT)
-        {
-            fprintf(stderr, "No such directory\n");
-        }
-        else
-        {
-            fprintf(stderr, "Change directory failed\n");
-        }
-        return false;
-    }
+	if (chdir(directory) == -1)
+	{
+		if (errno == ENOENT)
+		{
+			fprintf(stderr, "No such directory\n");
+		}
+		else
+		{
+			fprintf(stderr, "Change directory failed\n");
+		}
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 bool printDirectory()
 {
-    char cwd[1024];
+	char cwd[1024];
 
-    if (getcwd(cwd, sizeof(cwd)) == NULL)
-    {
-        perror("pwd");
-        return false;   
-    }
+	if (getcwd(cwd, sizeof(cwd)) == NULL)
+	{
+		perror("pwd");
+		return false;   
+	}
 
-    printf(cwd);
+	printf(cwd);
 
-    return true;
+	return true;
 }
 
 bool formatShellString()
 {
-    if (!printDirectory())
-    {
-        return false;
-    }
+	if (!printDirectory())
+	{
+		return false;
+	}
 
-    printf("$myshell > ");
-    fflush(stdout);
+	printf("$mysh > ");
+	fflush(stdout);
 }
 
 bool parseCommand(char* command, int lengthCommand, char** tokenized, int lengthTokanized)
 {
-    if (lengthCommand == 0 || command[0] == '\n')
-    {
-        return false;
-    }
-    
-    int currentArg = 0;
+	if (lengthCommand == 0 || command[0] == '\n')
+	{
+		return false;
+	}
+	
+	int currentArg = 0;
 
-    if (command[0] != ' ')
-    {
-        tokenized[currentArg] = &command[0];
-        currentArg++;
-    }
+	if (command[0] != ' ')
+	{
+		tokenized[currentArg] = &command[0];
+		currentArg++;
+	}
 
-    int i = 0;
-    for (; i < lengthCommand && command[i] != '\0'; i++)
-    {
-        if (command[i] == ' ' && i < lengthCommand - 1 && command[i+1] != ' ')
-        {
-            if (currentArg >= lengthTokanized)
-            {
-                return false;
-            }
+	int i = 0;
+	for (; i < lengthCommand && command[i] != '\0'; i++)
+	{
+		if (command[i] == ' ' && i < lengthCommand - 1 && command[i+1] != ' ')
+		{
+			if (currentArg >= lengthTokanized)
+			{
+				return false;
+			}
 
-            tokenized[currentArg] = &command[i + 1];
-            command[i] = '\0';
-            currentArg++;
-        }
-        else if (i > 0 && command[i] == ' ' && command[i - 1] != ' ')
-        {
-            command[i] = '\0';
-        }
-    }
+			tokenized[currentArg] = &command[i + 1];
+			command[i] = '\0';
+			currentArg++;
+		}
+		else if (i > 0 && command[i] == ' ' && command[i - 1] != ' ')
+		{
+			command[i] = '\0';
+		}
+	}
 
 	if (command[i-1] == '\n')
-    {
-        command[i-1] = '\0';
-    }
-    
-    return true;
+	{
+		command[i-1] = '\0';
+	}
+	
+	return true;
 }
 
 bool commandChoser(char** buffer, int numTokens)
 {
-    if (buffer[0] == NULL)
-    {
-        return false;
-    }
+	if (buffer[0] == NULL)
+	{
+		return false;
+	}
 
-    if (strcmp(buffer[0], "cd") == 0)
-    {
-        if (buffer[1] == NULL)
-        {
-            return changeDirectory("", 0);
-        }
-        else
-        {
-            return changeDirectory(buffer[1], strlen(buffer[1]));
-        }
-        return true;
-    }
+	if (strcmp(buffer[0], "cd") == 0)
+	{
+		if (buffer[1] == NULL)
+		{
+			return changeDirectory("", 0);
+		}
+		else
+		{
+			return changeDirectory(buffer[1], strlen(buffer[1]));
+		}
+		return true;
+	}
 
-    if (strcmp(buffer[0],"pwd") == 0)
-    {
-        printDirectory();
-        printf("\n");
-        fflush(stdout);
-        return true;
-    }
+	if (strcmp(buffer[0],"pwd") == 0)
+	{
+		printDirectory();
+		printf("\n");
+		fflush(stdout);
+		return true;
+	}
 
-    if (strcmp(buffer[0], "exit") == 0)
-    {
-        exit(EXIT_SUCCESS);
-    }
+	if (strcmp(buffer[0], "exit") == 0)
+	{
+		exit(EXIT_SUCCESS);
+	}
 
-    runCommand(buffer, numTokens);
+	runCommand(buffer, numTokens);
 
-    return true;
+	return true;
 }
 
 void signalHandler(int signal)
 {
-    return;
+	return;
 }
 
 bool initializeSignalHandler()
 {
 	//catch signals so parent shell doesnt exit while child processes do
-    signal(SIGINT, signalHandler);
-    return true;
+	signal(SIGINT, signalHandler);
+	return true;
 }
 
 bool runCommand(char** command, int length)
 {
 
 
-    int status;
+	int status;
 	int pid = fork();
 
 	if (pid == -1)
 	{
 		perror("Failed to create processes");
-        return false;
+		return false;
 	}
 
 	if (pid == 0)
 	{
 		if (execvp(command[0], command) == -1)
-        {
-            fprintf(stderr, "Failed to execute command\n");
-            exit(EXIT_FAILURE);
-        }
+		{
+			fprintf(stderr, "Failed to execute command\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 	else
 	{
 		wait(0);
-    }
-    return true;
+	}
+	return true;
 }
 
 bool getUserCommand(char* buffer, int bufferSize)
 {
-    if (fgets(buffer, bufferSize, stdin) == 0)
-    {
-        return false;
-    }
+	if (fgets(buffer, bufferSize, stdin) == 0)
+	{
+		return false;
+	}
 
-    return true;
+	return true;
 }
